@@ -45,7 +45,7 @@ class MorphState {
   final String sessionId;
   final bool safeMode;
 
-  /// Map<zoneId, orderIndex>. Empty before the scorer has run or when the
+  /// `Map<zoneId, orderIndex>`. Empty before the scorer has run or when the
   /// scorer decides no reorder is warranted.
   final Map<String, int> zoneOrder;
 

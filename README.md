@@ -320,6 +320,11 @@ GripAdaptiveLayout(
 Low battery? Morph reduces animations, simplifies the interface,
 and on OLED screens goes darker. Your app lasts longer. Your user stays.
 
+**Charging-aware by default.** When the device is plugged in, Morph
+keeps the UI in `normal` mode regardless of battery level — a phone
+charging at 12% behaves like one at 95%. No surprise downgrades while
+the user is at their desk.
+
 ```dart
 MorphProvider(
   features: MorphFeatures(batteryAwareUI: true),
@@ -380,6 +385,23 @@ FatigueAdaptiveForm(
 Walking → bigger text. In a vehicle → essential only.
 Stationary → full interface. Uses your existing GPS feed.
 Zero extra permissions.
+
+**Robust to bad fixes.** Updates with `accuracy > 50m` are dropped —
+indoor / urban-canyon noise won't flip the UI to "stationary" while the
+user is actually mid-trip.
+
+**Tunnel-tolerant.** When the signal degrades for up to 30 seconds the
+adapter holds the last known context — going through a tunnel or under
+a bridge no longer drops the user back to "unknown".
+
+**Hysteresis on transitions.** Mode changes use asymmetric thresholds
+(e.g. walking→cycling at 7 km/h but cycling→walking only at 5 km/h),
+so a steady speed at the boundary doesn't oscillate the UI.
+
+**Accelerometer-aware.** When GPS reports `stationary` but the
+accelerometer shows sustained train-like vibration, the adapter
+upgrades to `vehicle` — useful in metros and trains where the GPS
+loses lock for minutes at a time.
 
 ```dart
 MorphProvider(

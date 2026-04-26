@@ -21,18 +21,18 @@ packages:
     dependency: "direct main"
     description:
       name: battery_plus
-      sha256: "80c40c9f5763c797f6802797983392e9560eff749a199baeba1229e5aba77ef5"
+      sha256: ad16fcb55b7384be6b4bbc763d5e2031ac7ea62b2d9b6b661490c7b9741155bf
       url: "https://pub.dev"
     source: hosted
-    version: "4.1.0"
+    version: "7.0.0"
   battery_plus_platform_interface:
     dependency: transitive
     description:
       name: battery_plus_platform_interface
-      sha256: "19fd8418a81aeb2dea8fb7026b1fdf56b6c6d319baf8d703fa0d13c1d5c7ba2f"
+      sha256: e8342c0f32de4b1dfd0223114b6785e48e579bfc398da9471c9179b907fa4910
       url: "https://pub.dev"
     source: hosted
-    version: "1.2.2"
+    version: "2.0.1"
   boolean_selector:
     dependency: transitive
     description:
@@ -105,6 +105,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.2.0"
+  ffi_leak_tracker:
+    dependency: transitive
+    description:
+      name: ffi_leak_tracker
+      sha256: "4093d4ef9ca06ffe2786e73bfb25e22aa92112b9bb4ec941f11e3e6b61489a97"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.1.2"
   file:
     dependency: transitive
     description:
@@ -292,18 +300,18 @@ packages:
     dependency: "direct main"
     description:
       name: package_info_plus
-      sha256: "7e76fad405b3e4016cd39d08f455a4eb5199723cf594cd1b8916d47140d93017"
+      sha256: "4bf625947f6c7713ee242296a682e23e44823c09cf9d79e4f1238923c92db852"
       url: "https://pub.dev"
     source: hosted
-    version: "4.2.0"
+    version: "10.1.0"
   package_info_plus_platform_interface:
     dependency: transitive
     description:
       name: package_info_plus_platform_interface
-      sha256: "9bc8ba46813a4cc42c66ab781470711781940780fd8beddd0c3da62506d3a6c6"
+      sha256: db762cb2f4f25ee60fb6359773861b0f199e00b90d237bd85a76a1e806b46ef4
       url: "https://pub.dev"
     source: hosted
-    version: "2.0.1"
+    version: "4.1.0"
   path:
     dependency: transitive
     description:
@@ -404,18 +412,18 @@ packages:
     dependency: "direct main"
     description:
       name: sensors_plus
-      sha256: "8e7fa79b4940442bb595bfc0ee9da4af5a22a0fe6ebacc74998245ee9496a82d"
+      sha256: "56e8cd4260d9ed8e00ecd8da5d9fdc8a1b2ec12345a750dfa51ff83fcf12e3fa"
       url: "https://pub.dev"
     source: hosted
-    version: "4.0.2"
+    version: "7.0.0"
   sensors_plus_platform_interface:
     dependency: transitive
     description:
       name: sensors_plus_platform_interface
-      sha256: bc472d6cfd622acb4f020e726433ee31788b038056691ba433fec80e448a094f
+      sha256: "58815d2f5e46c0c41c40fb39375d3f127306f7742efe3b891c0b1c87e2b5cd5d"
       url: "https://pub.dev"
     source: hosted
-    version: "1.2.0"
+    version: "2.0.1"
   shared_preferences:
     dependency: "direct main"
     description:
@@ -577,10 +585,10 @@ packages:
     dependency: transitive
     description:
       name: win32
-      sha256: d7cb55e04cd34096cd3a79b3330245f54cb96a370a1c27adb3c84b917de8b08e
+      sha256: ba7d5750e3441caa1bbe31d9e516348fcf8dfcb32aa29ef87a844a59f4d1f1d0
       url: "https://pub.dev"
     source: hosted
-    version: "5.15.0"
+    version: "6.1.0"
   xdg_directories:
     dependency: transitive
     description:

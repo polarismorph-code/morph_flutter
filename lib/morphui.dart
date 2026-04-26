@@ -55,9 +55,13 @@ export 'src/ergonomics/grip_detector.dart';
 // Battery adapter — read-only mode + adaptive widgets/theme.
 export 'src/battery/battery_adapter.dart';
 export 'src/battery/battery_aware_widgets.dart';
+export 'src/battery/battery_session_snapshot.dart';
+export 'src/battery/charge_pattern_predictor.dart' show ChargePatternPredictor;
+export 'src/device/device_capabilities.dart';
 
 // Cognitive fatigue — pattern-based estimate + adaptive form scaffold.
 export 'src/cognitive/fatigue_adaptive_form.dart';
+export 'src/cognitive/fatigue_baseline.dart';
 export 'src/cognitive/fatigue_detector.dart';
 
 // GPS context — uses dev-supplied GPS data, no extra permission.

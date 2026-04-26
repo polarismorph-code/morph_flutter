@@ -3,31 +3,44 @@ import 'package:flutter/material.dart';
 import '../provider/morph_provider.dart';
 import 'fatigue_detector.dart';
 
-/// Form scaffold that swaps its field set and zoom level based on the
-/// detected [FatigueLevel].
+/// Form scaffold whose field set, scale, and banner adapt to the
+/// detected fatigue.
 ///
-///   • none   — full [normalFields] at scale 1.0
-///   • medium — full [normalFields] at scale 1.15 + discreet banner
-///   • high   — only [simplifiedFields] at scale 1.30 + banner
+/// **Two adaptation modes** (controlled by [adaptation]):
+///
+///   • [FatigueAdaptation.smooth] (default) — reads
+///     [FatigueDetector.scoreStream] and interpolates the field scale
+///     continuously between 1.0 (score=0) and 1.30 (score=100). The
+///     simplified field set kicks in past score 70. The banner fades
+///     in as the score rises past 40.
+///   • [FatigueAdaptation.stepped] — reads
+///     [FatigueDetector.stream] and snaps to the legacy three buckets
+///     (none/medium/high). Backward compatibility default for apps
+///     that prefer abrupt transitions.
 ///
 /// The banner exposes a "Reset" affordance that calls
-/// [FatigueDetector.resetFatigue] so the user can revert if the heuristic
-/// misfires. All colors are pulled from `Theme.of(context).colorScheme`.
+/// [FatigueDetector.resetFatigue] so the user can revert if the
+/// heuristic misfires. All colours are pulled from
+/// `Theme.of(context).colorScheme`.
 class FatigueAdaptiveForm extends StatelessWidget {
-  /// Full field set. Shown at none/medium fatigue.
+  /// Full field set. Shown until the score crosses 70.
   final List<Widget> normalFields;
 
-  /// Stripped-down set shown at high fatigue. Should only contain the
+  /// Stripped-down set shown above score 70. Should only contain the
   /// fields strictly required to submit; the dev pre-fills the rest.
   final List<Widget> simplifiedFields;
 
   /// The submit CTA — rendered unmodified at every fatigue level.
   final Widget submitButton;
 
+  /// How aggressively to react to the live signal — see class doc.
+  final FatigueAdaptation adaptation;
+
   const FatigueAdaptiveForm({
     required this.normalFields,
     required this.simplifiedFields,
     required this.submitButton,
+    this.adaptation = FatigueAdaptation.smooth,
     super.key,
   });
 
@@ -37,40 +50,68 @@ class FatigueAdaptiveForm extends StatelessWidget {
         MorphInheritedWidget.maybeOf(context)?.fatigueDetector;
     if (detector == null) {
       // Feature off — render the normal form with no scale change.
-      return _buildLayout(context, FatigueLevel.none, normalFields);
+      return _buildLayout(context, score: 0, fields: normalFields);
     }
 
-    return StreamBuilder<FatigueLevel>(
-      stream: detector.stream,
-      initialData: detector.currentLevel,
+    if (adaptation == FatigueAdaptation.stepped) {
+      return StreamBuilder<FatigueLevel>(
+        stream: detector.stream,
+        initialData: detector.currentLevel,
+        builder: (ctx, snap) {
+          final level = snap.data ?? FatigueLevel.none;
+          final score = _legacyLevelToScore(level);
+          final fields =
+              level == FatigueLevel.high ? simplifiedFields : normalFields;
+          return _buildLayout(ctx, score: score, fields: fields, detector: detector);
+        },
+      );
+    }
+
+    return StreamBuilder<double>(
+      stream: detector.scoreStream,
+      initialData: detector.currentScore,
       builder: (ctx, snap) {
-        final level = snap.data ?? FatigueLevel.none;
-        final fields =
-            level == FatigueLevel.high ? simplifiedFields : normalFields;
-        return _buildLayout(ctx, level, fields, detector: detector);
+        final score = (snap.data ?? 0).clamp(0.0, 100.0);
+        final fields = score >= 70 ? simplifiedFields : normalFields;
+        return _buildLayout(ctx, score: score, fields: fields, detector: detector);
       },
     );
   }
 
   Widget _buildLayout(
-    BuildContext context,
-    FatigueLevel level,
-    List<Widget> fields, {
+    BuildContext context, {
+    required double score,
+    required List<Widget> fields,
     FatigueDetector? detector,
   }) {
-    final scale = _scaleFor(level);
+    // Smooth scale — interpolates 1.00 (score=0) → 1.30 (score=100).
+    final scale = 1.0 + (score / 100) * 0.30;
+
+    // Banner appears past score 40, opacity ramps up to fully visible
+    // by score 60 — avoids a hard pop-in.
+    final bannerOpacity = ((score - 40) / 20).clamp(0.0, 1.0);
+    final showBanner = bannerOpacity > 0 && detector != null;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        if (level != FatigueLevel.none && detector != null)
-          _Banner(level: level, onReset: detector.resetFatigue),
+        if (showBanner)
+          AnimatedOpacity(
+            opacity: bannerOpacity,
+            duration: const Duration(milliseconds: 250),
+            child: _Banner(
+              isHigh: score >= 70,
+              onReset: () => detector.resetFatigue(),
+            ),
+          ),
         ...fields.map(
           (f) => Padding(
             padding: const EdgeInsets.only(bottom: 12),
-            child: Transform.scale(
+            child: AnimatedScale(
               scale: scale,
               alignment: Alignment.topCenter,
+              duration: const Duration(milliseconds: 250),
+              curve: Curves.easeOut,
               child: f,
             ),
           ),
@@ -81,29 +122,39 @@ class FatigueAdaptiveForm extends StatelessWidget {
     );
   }
 
-  double _scaleFor(FatigueLevel level) {
+  double _legacyLevelToScore(FatigueLevel level) {
     switch (level) {
       case FatigueLevel.none:
-        return 1.0;
+        return 0;
       case FatigueLevel.medium:
-        return 1.15;
+        return 50;
       case FatigueLevel.high:
-        return 1.30;
+        return 80;
     }
   }
 }
 
+/// How [FatigueAdaptiveForm] reacts to the live fatigue signal.
+enum FatigueAdaptation {
+  /// Continuous interpolation driven by [FatigueDetector.scoreStream].
+  smooth,
+
+  /// Three-step bucket driven by the legacy [FatigueDetector.stream] —
+  /// kept for apps that wired Morph against the 0.1.1 API.
+  stepped,
+}
+
 class _Banner extends StatelessWidget {
-  final FatigueLevel level;
+  final bool isHigh;
   final VoidCallback onReset;
 
-  const _Banner({required this.level, required this.onReset});
+  const _Banner({required this.isHigh, required this.onReset});
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
-    final label = level == FatigueLevel.high
+    final label = isHigh
         ? '😮‍💨 Simplified view active'
         : '👁 Interface adjusted';
 

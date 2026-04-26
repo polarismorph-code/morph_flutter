@@ -21,6 +21,8 @@ class BehaviorDB {
   static const String scrollBox = 'cml_scroll';
   static const String snapshotsBox = 'cml_snapshots';
   static const String prefsBox = 'cml_prefs';
+  static const String batterySessionsBox = 'cml_battery_sessions';
+  static const String chargeEventsBox = 'cml_charge_events';
 
   /// Hard ceiling — we refuse to keep behavioral data longer than this no
   /// matter what the dev configures. Privacy floor.
@@ -49,6 +51,8 @@ class BehaviorDB {
       Hive.openBox<Map>(sessionsBox),
       Hive.openBox<Map>(scrollBox),
       Hive.openBox<Map>(snapshotsBox),
+      Hive.openBox<Map>(batterySessionsBox),
+      Hive.openBox<Map>(chargeEventsBox),
       Hive.openBox(prefsBox),
     ]);
     // Run once at boot, then every 24h — keep both off the main thread by
@@ -376,6 +380,24 @@ class BehaviorDB {
     return entries.isEmpty ? null : entries.first;
   }
 
+  /// Returns the entire chain of unused snapshots that share a
+  /// [workflowId], ordered by `workflowStep` ascending. Used by the
+  /// multi-step recovery path so we can restore "step 1 → step 4" of a
+  /// KYC instead of just the last step the user landed on.
+  Future<List<RecoverySnapshot>> getSnapshotsByWorkflow(
+    String workflowId,
+  ) async {
+    if (!_initialized) return const [];
+    final box = Hive.box<Map>(snapshotsBox);
+    if (box.isEmpty) return const [];
+    final entries = box.values
+        .map((m) => RecoverySnapshot.fromMap(m))
+        .where((s) => !s.used && s.workflowId == workflowId)
+        .toList()
+      ..sort((a, b) => (a.workflowStep ?? 0).compareTo(b.workflowStep ?? 0));
+    return entries;
+  }
+
   /// Mark a snapshot consumed so it doesn't trigger another suggestion.
   /// Called from the recovery suggestion's `action` after the user taps
   /// "Resume".
@@ -411,10 +433,72 @@ class BehaviorDB {
     await Hive.box(prefsBox).put('battery.preference', value);
   }
 
+  // ─── BATTERY TELEMETRY ───────────────────────────────────────────────────
+  //
+  // [batterySessionsBox] stores one row per foreground session (start/end
+  // level, duration, was-charging flag). [chargeEventsBox] stores one row
+  // per BatteryState.charging transition — used by the pattern learner
+  // to predict the user's typical charge windows.
+
+  /// Persists a session-level battery snapshot. Returns silently when not
+  /// initialised — callers shouldn't have to guard.
+  Future<void> saveBatterySession(Map<String, Object> entry) async {
+    if (!_initialized) return;
+    final ts = (entry['startTime'] as int?) ?? DateTime.now().millisecondsSinceEpoch;
+    await Hive.box<Map>(batterySessionsBox).put(ts, entry);
+  }
+
+  /// Returns all battery sessions whose `startTime` is within [lookback]
+  /// of now. Pass `null` to get every retained row.
+  Future<List<Map>> getBatterySessions({Duration? lookback}) async {
+    if (!_initialized) return const [];
+    final box = Hive.box<Map>(batterySessionsBox);
+    final all = box.values.toList();
+    if (lookback == null) return all;
+    final cutoff = DateTime.now()
+        .subtract(lookback)
+        .millisecondsSinceEpoch;
+    return all.where((e) => ((e['startTime'] as int?) ?? 0) >= cutoff).toList();
+  }
+
+  /// Records a charge-start event. Used by the pattern learner.
+  Future<void> saveChargeEvent({required int batteryLevel}) async {
+    if (!_initialized) return;
+    final now = DateTime.now();
+    final ts = now.millisecondsSinceEpoch;
+    await Hive.box<Map>(chargeEventsBox).put(ts, <String, Object>{
+      'timestamp': ts,
+      'hour': now.hour,
+      'minute': now.minute,
+      'dayOfWeek': now.weekday,
+      'batteryLevel': batteryLevel,
+    });
+  }
+
+  /// Returns charge-start events within [lookback]. `null` returns all.
+  Future<List<Map>> getChargeEvents({Duration? lookback}) async {
+    if (!_initialized) return const [];
+    final box = Hive.box<Map>(chargeEventsBox);
+    final all = box.values.toList();
+    if (lookback == null) return all;
+    final cutoff = DateTime.now()
+        .subtract(lookback)
+        .millisecondsSinceEpoch;
+    return all.where((e) => ((e['timestamp'] as int?) ?? 0) >= cutoff).toList();
+  }
+
   /// Generic accessor — useful for tests and the privacy screen.
   Object? readPreference(String key) {
     if (!_initialized) return null;
     return Hive.box(prefsBox).get(key);
+  }
+
+  /// Generic setter — pendant of [readPreference]. Used by feature
+  /// modules that store small scalar state (fatigue baseline,
+  /// last-session date, …) without needing their own typed API.
+  Future<void> savePreference(String key, Object value) async {
+    if (!_initialized) return;
+    await Hive.box(prefsBox).put(key, value);
   }
 
   // ─── STORAGE / GDPR HELPERS ──────────────────────────────────────────────

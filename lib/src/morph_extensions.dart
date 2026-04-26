@@ -233,43 +233,56 @@ extension MorphPlanContext on BuildContext {
   /// Shorthand — true only on Agency.
   bool get isMorphAgency => morphPlan.isAgency;
 
-  /// Imperative gate: invokes [onAllowed] when the plan is Pro+, else
-  /// shows the upgrade dialog. Pass [onUpgrade] to wire your in-app
-  /// billing flow — without it, the dialog's "Upgrade" button just logs
-  /// the upgrade URL.
+  /// Imperative gate — invokes [onAllowed] when the plan is Pro+, else
+  /// invokes [onDenied] (or no-ops if [onDenied] is null).
+  ///
+  /// **The SDK never auto-shows a Morph-branded dialog to your end
+  /// users.** Your customers' subscription state is your relationship
+  /// with Morph, not theirs. If you want to surface a custom upsell —
+  /// on YOUR admin surface, billing-recovery flow, or developer
+  /// settings — wire [onDenied] to YOUR own UI:
+  ///
+  /// ```dart
+  /// context.requireMorphPro(
+  ///   () => Navigator.push(context, ...),         // happy path
+  ///   onDenied: () => showSnackBar('Available soon'), // optional fallback
+  /// );
+  /// ```
+  ///
+  /// Or, on YOUR admin screen where it's safe to surface Morph
+  /// branding, opt explicitly into the bundled dialog:
+  /// ```dart
+  /// context.requireMorphPro(
+  ///   () => Navigator.push(context, ...),
+  ///   onDenied: () => showDialog(
+  ///     context: context,
+  ///     builder: (_) => const MorphUpgradeDialog(
+  ///       requiredPlan: MorphPlan.pro,
+  ///     ),
+  ///   ),
+  /// );
+  /// ```
   void requireMorphPro(
     VoidCallback onAllowed, {
-    VoidCallback? onUpgrade,
+    VoidCallback? onDenied,
   }) {
     if (morphPlan.isPro) {
       onAllowed();
-    } else {
-      _showUpgrade(this, MorphPlan.pro, onUpgrade);
+    } else if (onDenied != null) {
+      onDenied();
     }
   }
 
+  /// Same contract as [requireMorphPro] but for the Agency tier — see
+  /// that method's doc for the safety story.
   void requireMorphAgency(
     VoidCallback onAllowed, {
-    VoidCallback? onUpgrade,
+    VoidCallback? onDenied,
   }) {
     if (morphPlan.isAgency) {
       onAllowed();
-    } else {
-      _showUpgrade(this, MorphPlan.agency, onUpgrade);
+    } else if (onDenied != null) {
+      onDenied();
     }
   }
-}
-
-void _showUpgrade(
-  BuildContext context,
-  MorphPlan required,
-  VoidCallback? onUpgrade,
-) {
-  showDialog<void>(
-    context: context,
-    builder: (_) => MorphUpgradeDialog(
-      requiredPlan: required,
-      onUpgrade: onUpgrade,
-    ),
-  );
 }

@@ -195,6 +195,33 @@ class _MorphProviderState extends State<MorphProvider>
     if (_initStarted || !mounted) return;
     _initStarted = true;
 
+    // Fast path — `safeMode` means "detect, don't act". Skip the
+    // license HTTP, the Hive init, every feature engine. Just read
+    // the system state, expose it synchronously, and return. Anything
+    // network-bound here (license validation in particular) would hang
+    // the test harness or burn the host app's first frame for nothing.
+    if (widget.safeMode) {
+      final theme = _themeAdapter.detect(context);
+      _systemSettings = _themeAdapter.readSettings(context);
+      _rawColors = ColorExtractor.extract(
+        context: context,
+        declaredColors: widget.colors,
+        baseTheme: widget.baseTheme,
+      );
+      final adapted = _buildAdapted(_systemSettings, theme.generated);
+      if (!mounted) return;
+      setState(
+        () => _state = MorphState.safe(theme).copyWith(
+          systemSettings: _systemSettings,
+          adaptedTheme: adapted,
+          adaptedColors:
+              _buildAdaptedColors(_systemSettings, adapted, theme.generated),
+          analyticsConfig: widget.analytics,
+        ),
+      );
+      return;
+    }
+
     // Phase −1 — resolve the host app's package identifier so every
     // subsequent backend call (validate, theme, behavior, impact) can
     // include `appId` in its payload. The backend rejects calls whose
@@ -254,7 +281,7 @@ class _MorphProviderState extends State<MorphProvider>
       }
       if (wants.gripDetection && allows.gripDetection) {
         _grip = GripDetector(db: _db);
-        _grip!.start();
+        unawaited(_grip!.start());
       } else if (wants.gripDetection) {
         allows.checkGripDetection(); // logs upgrade hint in debug
       }
@@ -266,12 +293,16 @@ class _MorphProviderState extends State<MorphProvider>
       }
       if (wants.fatigueDetection && allows.fatigueCognitiveDetection) {
         _fatigue = FatigueDetector(db: _db);
-        _fatigue!.startSession();
+        unawaited(_fatigue!.startSession());
       } else if (wants.fatigueDetection) {
         allows.checkFatigueDetection();
       }
       if (wants.gpsContext && allows.gpsContextUI) {
         _gps = GpsContextAdapter();
+        // Subscribes to the accelerometer for the train-detection
+        // fallback. No-op on platforms without an accelerometer (web,
+        // some emulators) — the GPS path keeps working.
+        _gps!.start();
       } else if (wants.gpsContext) {
         allows.checkGpsContext();
       }

@@ -33,10 +33,21 @@ class GripAdaptiveLayout extends StatelessWidget {
   /// `GripHand.unknown`.
   final Alignment defaultAlignment;
 
+  /// How long the [primaryAction] takes to slide between sides when the
+  /// detected hand changes. Default 300ms — feels responsive without
+  /// being snappy. Set higher for a softer feel on longer screens.
+  final Duration transitionDuration;
+
+  /// Curve used during the transition. Default `easeOutCubic` matches
+  /// Material's standard "settle" feel.
+  final Curve transitionCurve;
+
   const GripAdaptiveLayout({
     required this.child,
     required this.primaryAction,
     this.defaultAlignment = Alignment.bottomRight,
+    this.transitionDuration = const Duration(milliseconds: 300),
+    this.transitionCurve = Curves.easeOutCubic,
     super.key,
   });
 
@@ -72,8 +83,8 @@ class GripAdaptiveLayout extends StatelessWidget {
             child,
             AnimatedAlign(
               alignment: alignment,
-              duration: const Duration(milliseconds: 300),
-              curve: Curves.easeOutCubic,
+              duration: transitionDuration,
+              curve: transitionCurve,
               child: Padding(
                 padding: const EdgeInsets.all(16),
                 child: primaryAction,
