@@ -5,7 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:hive/hive.dart';
 import 'package:path_provider_platform_interface/path_provider_platform_interface.dart';
 
-import 'package:morph_flutter/morph_flutter.dart';
+import 'package:morphui/morphui.dart';
 
 /// Minimal in-memory path_provider stub so Hive.initFlutter() resolves to a
 /// temp directory during widget tests (no platform channels).

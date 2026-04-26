@@ -1,7 +1,7 @@
 /// Morph for Flutter — automatic UI adaptation.
 ///
 /// ```dart
-/// import 'package:morph_flutter/morph_flutter.dart';
+/// import 'package:morphui/morphui.dart';
 ///
 /// void main() {
 ///   WidgetsFlutterBinding.ensureInitialized();
@@ -11,7 +11,7 @@
 ///   ));
 /// }
 /// ```
-library morph_flutter;
+library morphui;
 
 // Provider + inherited widget.
 export 'src/provider/morph_provider.dart';

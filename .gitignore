@@ -1,0 +1,26 @@
+# Dart / Flutter build artifacts
+.dart_tool/
+.packages
+build/
+.flutter-plugins
+.flutter-plugins-dependencies
+
+# Library packages don't commit pubspec.lock — pub.dev resolves
+# its own. (Apps DO commit pubspec.lock; this is a library.)
+pubspec.lock
+
+# Generated coverage
+coverage/
+
+# IDE
+.idea/
+.vscode/
+*.iml
+*.ipr
+*.iws
+.claude/
+# macOS
+.DS_Store
+
+# Logs
+*.log

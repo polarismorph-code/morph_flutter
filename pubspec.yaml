@@ -1,4 +1,4 @@
-name: morph_flutter
+name: morphui
 description: >-
   Automatic UI adaptation for Flutter. Dark mode, accessibility, and
   behavioral layout adaptation — zero configuration.
