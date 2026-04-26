@@ -1,10 +1,10 @@
 {
   "roots": [
-    "morph_flutter"
+    "morphui"
   ],
   "packages": [
     {
-      "name": "morph_flutter",
+      "name": "morphui",
       "version": "0.1.0",
       "dependencies": [
         "battery_plus",
