@@ -58,7 +58,7 @@ Reads directly from the device OS — `platformBrightness`, `highContrast`, `tex
 
 ### V1 — Design Intelligence
 
-Claude reads your actual design — not just your colors.
+IA reads your actual design — not just your colors.
 
 Not a color inverter. Morph reads your `ThemeData` or your `AppColors` file — whatever you already have — and generates the opposite theme from your exact palette.
 
@@ -547,7 +547,7 @@ One alone is not enough.
 - Automatic dark / light theme from ThemeData or AppColors
 - WCAG AA — guaranteed, not hoped for
 - System preferences — all of them
-- AI-powered theme generation (Claude)
+- AI-powered theme generation
 - iOS and Android
 
 ### ✅ V2 — Behavioral Intelligence
