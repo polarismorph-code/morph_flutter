@@ -4,7 +4,7 @@ description: >-
   behavioral layout adaptation — zero configuration.
 version: 0.1.0
 homepage: https://morphui.dev
-repository: https://github.com/cabraule/morph_flutter
+repository: https://github.com/polarismorph-code/morph_flutter.git
 
 environment:
   sdk: '>=3.0.0 <4.0.0'
