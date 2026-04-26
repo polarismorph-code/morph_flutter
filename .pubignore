@@ -1,0 +1,24 @@
+# Build artifacts (45 MB)
+build/
+.dart_tool/
+
+# Local lockfile — pub.dev resolves its own
+pubspec.lock
+
+# IDE
+.idea/
+.vscode/
+*.iml
+
+# Legacy chameleon_* files from pre-rename — kept locally for reference
+# but not shipped to pub.dev. Once removed from git, these lines can go.
+lib/chameleon_flutter.dart
+lib/src/chameleon.dart
+lib/src/chameleon_extensions.dart
+lib/src/analytics/chameleon_analytics_config.dart
+lib/src/features/chameleon_features.dart
+lib/src/license/chameleon_plan.dart
+lib/src/license/chameleon_plan_features.dart
+lib/src/models/chameleon_system_settings.dart
+lib/src/navigation/chameleon_navigator_observer.dart
+lib/src/provider/chameleon_provider.dart

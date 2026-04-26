@@ -1,0 +1,38 @@
+name: morph_flutter
+description: >-
+  Automatic UI adaptation for Flutter. Dark mode, accessibility, and
+  behavioral layout adaptation — zero configuration.
+version: 0.1.0
+homepage: https://morphui.dev
+repository: https://github.com/cabraule/morph_flutter
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+  flutter: '>=3.10.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  hive: ^2.2.3
+  hive_flutter: ^1.1.0
+  shared_preferences: ^2.2.0
+  http: ^1.1.0
+  visibility_detector: ^0.4.0+2
+  crypto: ^3.0.3
+  sensors_plus: ^4.0.0
+  battery_plus: ^4.0.0
+  # Used by MorphProvider to read the host app's package
+  # identifier (CFBundleIdentifier on iOS, applicationId on Android).
+  # The id is sent on every backend call so the server can enforce
+  # the license's `allowed_packages` binding (anti-key-sharing).
+  # Wide constraint — only the stable `PackageInfo.fromPlatform()` +
+  # `info.packageName` surface is used, which hasn't changed since v1.
+  package_info_plus: '>=4.0.0 <10.0.0'
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.0
+  path_provider_platform_interface: ^2.1.0
+
+flutter:

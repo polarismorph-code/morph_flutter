@@ -1,0 +1,17 @@
+include: package:flutter_lints/flutter.yaml
+
+analyzer:
+  errors:
+    deprecated_member_use_from_same_package: ignore
+    # Tighten progressively in later releases.
+    public_member_api_docs: ignore
+
+linter:
+  rules:
+    - prefer_const_constructors
+    - prefer_const_declarations
+    - prefer_final_fields
+    - prefer_final_locals
+    - avoid_unnecessary_containers
+    - avoid_print
+    - require_trailing_commas
