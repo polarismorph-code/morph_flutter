@@ -9,7 +9,7 @@
 Your app has one interface. Your users are not one person.
 
 [![pub.dev](https://img.shields.io/pub/v/morphui?color=4F46E5&label=pub.dev)](https://pub.dev/packages/morphui)
-[![license](https://img.shields.io/badge/license-MIT-06B6D4)](LICENSE)
+[![license](https://img.shields.io/badge/license-Apache%202.0-06B6D4)](LICENSE)
 [![Flutter](https://img.shields.io/badge/Flutter-3.10%2B-4F46E5)](https://flutter.dev/)
 [![iOS](https://img.shields.io/badge/iOS-12%2B-7C3AED)](https://developer.apple.com/)
 [![Android](https://img.shields.io/badge/Android-6%2B-06B6D4)](https://developer.android.com/)
@@ -575,6 +575,6 @@ One alone is not enough.
 
 Every user deserves an interface made for them.
 
-MIT License
+Apache License 2.0
 
 </div>

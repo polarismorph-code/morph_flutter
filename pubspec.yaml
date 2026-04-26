@@ -2,7 +2,7 @@ name: morphui
 description: >-
   Automatic UI adaptation for Flutter. Dark mode, accessibility, and
   behavioral layout adaptation — zero configuration.
-version: 0.1.0
+version: 0.1.1
 homepage: https://morphui.dev
 repository: https://github.com/polarismorph-code/morph_flutter.git
 
