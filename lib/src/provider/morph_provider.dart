@@ -594,14 +594,14 @@ class _MorphProviderState extends State<MorphProvider>
         '🦎 Features:\n'
         '   Dark mode auto      : ✅\n'
         '   Recovery (basic)    : ${ok(f.interruptionRecoveryBasic, MorphPlan.free)}\n'
-        '   Recovery (advanced) : ${ok(f.interruptionRecoveryAdvanced, MorphPlan.pro)}\n'
-        '   Grip detection      : ${ok(f.gripDetection, MorphPlan.pro)}\n'
-        '   Battery-aware UI    : ${ok(f.batteryAwareUI, MorphPlan.pro)}\n'
-        '   Suggestions         : ${ok(f.behavioralSuggestions, MorphPlan.pro)}\n'
-        '   Fatigue detection   : ${ok(f.fatigueCognitiveDetection, MorphPlan.agency)}\n'
-        '   GPS context         : ${ok(f.gpsContextUI, MorphPlan.agency)}\n'
-        '   Analytics dashboard : ${ok(f.analyticsDashboard, MorphPlan.agency)}\n'
-        '   Claude insights     : ${ok(f.claudeInsights, MorphPlan.agency)}',
+        '   Recovery (advanced) : ${ok(f.recoveryAdvanced, MorphPlan.professional)}\n'
+        '   Grip detection      : ${ok(f.gripDetection, MorphPlan.professional)}\n'
+        '   Battery-aware UI    : ${ok(f.batteryAware, MorphPlan.professional)}\n'
+        '   Suggestions         : ${ok(f.suggestionEngine, MorphPlan.professional)}\n'
+        '   Fatigue detection   : ${ok(f.fatigueDetection, MorphPlan.business)}\n'
+        '   GPS context         : ${ok(f.gpsContext, MorphPlan.business)}\n'
+        '   Analytics dashboard : ${ok(f.analyticsDashboard, MorphPlan.business)}\n'
+        '   AI insights         : ${ok(f.aiInsights, MorphPlan.business)}',
       );
       return true;
     }());

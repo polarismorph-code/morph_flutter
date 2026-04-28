@@ -9,13 +9,16 @@ import 'morph_plan.dart';
 ///
 /// The dev never instantiates this directly — it lands on
 /// `BuildContext.morphPlanFeatures` once the validator has resolved
-/// the plan. PlanGate / requireMorphPro use it to gate UI access.
+/// the plan. PlanGate / requireMorphProfessional use it to gate UI access.
 ///
 /// **Naming note**: this class is `MorphPlanFeatures` (not
 /// `MorphFeatures`) because the latter is already the dev-facing
 /// opt-in flag bag from the commercial-features module. Keeping them
 /// distinct means callers can pattern-match `wants && allows` without
 /// type collisions.
+///
+/// Mirrors `PlanService.PlanFeatures` in chameleon-backend — when a
+/// flag moves between tiers, both files have to change in lockstep.
 @immutable
 class MorphPlanFeatures {
   final MorphPlan plan;
@@ -31,29 +34,83 @@ class MorphPlanFeatures {
   /// Scroll position only — no checkout/transfer/KYC contexts.
   bool get interruptionRecoveryBasic => true;
 
-  // ─── PRO ────────────────────────────────────────────────────────────────
+  // ─── PROFESSIONAL — Pro+ ────────────────────────────────────────────────
+
+  /// Premium Claude Sonnet for theme generation. Free silent-degrades
+  /// to Haiku server-side (same JSON shape).
+  bool get sonnetTheme => plan.isProfessional;
+
+  /// V2 behavioral intelligence — zone reorder, morphing, suggestion
+  /// engine. The umbrella flag every other Pro+ V2 widget keys off.
+  bool get behavioralV2 => plan.isProfessional;
+
+  bool get morphZone => plan.isProfessional;
+  bool get reorderableColumn => plan.isProfessional;
+  bool get navigatorObserver => plan.isProfessional;
+  bool get suggestionEngine => plan.isProfessional;
+
+  bool get gripDetection => plan.isProfessional;
+  bool get batteryAware => plan.isProfessional;
+  bool get chargePatternPredictor => plan.isProfessional;
 
   /// Rich context-aware recovery (cart, transfer, KYC step, …).
-  bool get interruptionRecoveryAdvanced => plan.isPro;
+  bool get recoveryAdvanced => plan.isProfessional;
+  bool get recoveryContextual => plan.isProfessional;
+  bool get multiStepWorkflow => plan.isProfessional;
 
-  bool get gripDetection => plan.isPro;
-  bool get circadianRhythm => plan.isPro;
+  bool get circadianRhythm => plan.isProfessional;
 
-  /// The behavioral suggestion engine itself + its 3 base checks
-  /// (navigation shortcut, zone promotion, dark mode auto).
-  bool get behavioralSuggestions => plan.isPro;
+  // ─── BUSINESS — agency-grade ────────────────────────────────────────────
 
-  bool get navigationTracking => plan.isPro;
-  bool get behavioralAnalyticsLocal => plan.isPro;
-  bool get batteryAwareUI => plan.isPro;
+  bool get fatigueDetection => plan.isBusiness;
+  bool get fatigueBaseline => plan.isBusiness;
 
-  // ─── AGENCY ─────────────────────────────────────────────────────────────
+  bool get gpsContext => plan.isBusiness;
+  bool get gpsAccelerometerFusion => plan.isBusiness;
 
-  bool get fatigueCognitiveDetection => plan.isAgency;
-  bool get gpsContextUI => plan.isAgency;
-  bool get analyticsDashboard => plan.isAgency;
-  bool get claudeInsights => plan.isAgency;
-  bool get industryPresets => plan.isAgency;
+  bool get industryPresets => plan.isBusiness;
+
+  bool get analyticsDashboard => plan.isBusiness;
+  bool get metricsReporter => plan.isBusiness;
+  bool get dashboardExporter => plan.isBusiness;
+  bool get aiInsights => plan.isBusiness;
+
+  bool get whiteLabel => plan.isBusiness;
+
+  // ─── ENTERPRISE only ────────────────────────────────────────────────────
+
+  bool get sso => plan.isEnterprise;
+  bool get sla => plan.isEnterprise;
+  bool get customInfrastructure => plan.isEnterprise;
+
+  // ─── Legacy aliases — kept for backward compatibility ───────────────────
+  //
+  // App code written against the pre-Day-2 vocabulary still compiles.
+  // New code should use the canonical names above.
+
+  @Deprecated('Renamed to recoveryAdvanced. Will be removed in v0.4.')
+  bool get interruptionRecoveryAdvanced => recoveryAdvanced;
+
+  @Deprecated('Renamed to suggestionEngine. Will be removed in v0.4.')
+  bool get behavioralSuggestions => suggestionEngine;
+
+  @Deprecated('Renamed to navigatorObserver. Will be removed in v0.4.')
+  bool get navigationTracking => navigatorObserver;
+
+  @Deprecated('Renamed to behavioralV2. Will be removed in v0.4.')
+  bool get behavioralAnalyticsLocal => behavioralV2;
+
+  @Deprecated('Renamed to batteryAware. Will be removed in v0.4.')
+  bool get batteryAwareUI => batteryAware;
+
+  @Deprecated('Renamed to fatigueDetection. Will be removed in v0.4.')
+  bool get fatigueCognitiveDetection => fatigueDetection;
+
+  @Deprecated('Renamed to gpsContext. Will be removed in v0.4.')
+  bool get gpsContextUI => gpsContext;
+
+  @Deprecated('Renamed to aiInsights. Will be removed in v0.4.')
+  bool get claudeInsights => aiInsights;
 
   // ─── Helpers ────────────────────────────────────────────────────────────
 
@@ -79,34 +136,45 @@ class MorphPlanFeatures {
   }
 
   bool checkGripDetection() =>
-      check('Grip Detection', gripDetection, MorphPlan.pro);
+      check('Grip Detection', gripDetection, MorphPlan.professional);
 
-  bool checkBatteryAwareUI() =>
-      check('Battery-Aware UI', batteryAwareUI, MorphPlan.pro);
+  bool checkBatteryAware() =>
+      check('Battery-Aware UI', batteryAware, MorphPlan.professional);
 
-  bool checkBehavioralSuggestions() => check(
-        'Behavioral Suggestions',
-        behavioralSuggestions,
-        MorphPlan.pro,
+  bool checkSuggestionEngine() => check(
+        'Suggestion Engine',
+        suggestionEngine,
+        MorphPlan.professional,
       );
 
   bool checkFatigueDetection() => check(
         'Fatigue Detection',
-        fatigueCognitiveDetection,
-        MorphPlan.agency,
+        fatigueDetection,
+        MorphPlan.business,
       );
 
   bool checkGpsContext() =>
-      check('GPS Context UI', gpsContextUI, MorphPlan.agency);
+      check('GPS Context UI', gpsContext, MorphPlan.business);
 
   bool checkAnalyticsDashboard() => check(
         'Analytics Dashboard',
         analyticsDashboard,
-        MorphPlan.agency,
+        MorphPlan.business,
       );
 
-  bool checkClaudeInsights() =>
-      check('Claude Insights', claudeInsights, MorphPlan.agency);
+  bool checkAiInsights() =>
+      check('AI Insights', aiInsights, MorphPlan.business);
+
+  // Legacy check-helper aliases — same compat contract as the getters.
+
+  @Deprecated('Renamed to checkBatteryAware. Will be removed in v0.4.')
+  bool checkBatteryAwareUI() => checkBatteryAware();
+
+  @Deprecated('Renamed to checkSuggestionEngine. Will be removed in v0.4.')
+  bool checkBehavioralSuggestions() => checkSuggestionEngine();
+
+  @Deprecated('Renamed to checkAiInsights. Will be removed in v0.4.')
+  bool checkClaudeInsights() => checkAiInsights();
 
   @override
   bool operator ==(Object other) =>

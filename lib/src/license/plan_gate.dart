@@ -21,7 +21,7 @@ import 'morph_plan.dart';
 ///    plan can't satisfy it. Use this for end-user surfaces.
 /// ```dart
 /// PlanGate(
-///   requiredPlan: MorphPlan.agency,
+///   requiredPlan: MorphPlan.business,
 ///   featureName: 'Analytics Dashboard',
 ///   child: const FullAnalyticsDashboard(),
 /// )
@@ -32,7 +32,7 @@ import 'morph_plan.dart';
 ///    not Morph's.
 /// ```dart
 /// PlanGate(
-///   requiredPlan: MorphPlan.agency,
+///   requiredPlan: MorphPlan.business,
 ///   featureName: 'Analytics Dashboard',
 ///   child: const FullAnalyticsDashboard(),
 ///   fallback: const YourOwnUpgradeBanner(),
@@ -44,12 +44,12 @@ import 'morph_plan.dart';
 ///    pass [MorphUpsellCard] explicitly:
 /// ```dart
 /// PlanGate(
-///   requiredPlan: MorphPlan.agency,
+///   requiredPlan: MorphPlan.business,
 ///   featureName: 'Analytics Dashboard',
 ///   child: const FullAnalyticsDashboard(),
 ///   fallback: MorphUpsellCard(
 ///     featureName: 'Analytics Dashboard',
-///     requiredPlan: MorphPlan.agency,
+///     requiredPlan: MorphPlan.business,
 ///     onUpgrade: () => launchUrl(Uri.parse(MorphPlan.upgradeUrl)),
 ///   ),
 /// )
@@ -85,10 +85,12 @@ class PlanGate extends StatelessWidget {
     switch (requiredPlan) {
       case MorphPlan.free:
         return true;
-      case MorphPlan.pro:
-        return plan.isPro;
-      case MorphPlan.agency:
-        return plan.isAgency;
+      case MorphPlan.professional:
+        return plan.isProfessional;
+      case MorphPlan.business:
+        return plan.isBusiness;
+      case MorphPlan.enterprise:
+        return plan.isEnterprise;
     }
   }
 }
@@ -193,7 +195,7 @@ class MorphUpsellCard extends StatelessWidget {
 /// showDialog(
 ///   context: context,
 ///   builder: (_) => MorphUpgradeDialog(
-///     requiredPlan: MorphPlan.agency,
+///     requiredPlan: MorphPlan.business,
 ///     onUpgrade: () => launchUrl(Uri.parse(MorphPlan.upgradeUrl)),
 ///   ),
 /// );
